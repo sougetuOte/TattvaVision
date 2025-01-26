@@ -5,6 +5,7 @@ import shutil
 import pytest
 from pathlib import Path
 from PySide6.QtWidgets import QApplication
+from database import db, initialize_database
 
 # テスト用のアプリケーションインスタンス
 @pytest.fixture(scope="session")
@@ -21,10 +22,23 @@ def temp_dir():
         yield temp_dir
 
 # テスト用のデータベースパス
-@pytest.fixture(scope="function")
-def test_db_path(temp_dir):
-    db_path = os.path.join(temp_dir, "test.db")
+@pytest.fixture
+def test_db_path():
+    """一時的なテストデータベースのパスを提供する"""
+    with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+        db_path = tmp.name
+    
+    # データベースパスを設定
+    db.init(db_path)
+    initialize_database()
+    
     yield db_path
+    
+    # クリーンアップ
+    try:
+        os.unlink(db_path)
+    except:
+        pass
 
 # テスト用の画像ファイル
 @pytest.fixture(scope="session")
@@ -32,9 +46,10 @@ def test_image_path():
     return os.path.join(os.path.dirname(__file__), "fixtures", "images", "prithvi_prithvi.png")
 
 # テスト用の音声ファイル
-@pytest.fixture(scope="session")
+@pytest.fixture
 def test_sound_path():
-    return os.path.join(os.path.dirname(__file__), "fixtures", "sounds", "test_bell.mp3")
+    """テスト用の音声ファイルパスを提供する"""
+    return os.path.join(os.path.dirname(__file__), "fixtures", "sounds")
 
 # テスト用の設定ファイル
 @pytest.fixture(scope="function")
