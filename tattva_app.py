@@ -9,11 +9,13 @@ from PySide6.QtGui import QPixmap, QFont, QPalette, QColor, QIcon
 from PySide6.QtCore import Qt, QTimer, QSize
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtCore import QUrl
-from database import initialize_database, MeditationRecord, db
+from database import initialize_database, MeditationRecord, db, backup_database
 from record_window import RecordWindow
 from settings import settings
 from i18n import i18n
 from settings_window import SettingsWindow
+import logging
+import argparse
 
 class StyleSheet:
     MAIN_STYLE = """
@@ -70,15 +72,25 @@ class StyleSheet:
 class TattvaApp(QMainWindow):
     def __init__(self):
         super().__init__()
+        logging.debug("アプリケーションの初期化を開始")
         self.setWindowTitle(i18n.get('app.title'))
         self.setGeometry(100, 100, 1200, 800)
         self.setStyleSheet(StyleSheet.MAIN_STYLE)
         
         # Initialize database and other components
         initialize_database()
+        
+        # Set application icon
+        app_icon = QIcon('images/tattvavision.ico')
+        self.setWindowIcon(app_icon)
+        QApplication.instance().setWindowIcon(app_icon)
+        logging.debug("アプリケーションアイコンを設定")
+        
+        # Initialize UI components
         self.setup_timers()
         self.setup_sound_player()
         self.load_tattva_data()
+        logging.debug("UIコンポーネントの初期化完了")
         
         # Create main layout
         main_widget = QWidget()
@@ -237,7 +249,13 @@ class TattvaApp(QMainWindow):
         return panel
 
     def load_tattva_data(self):
-        self.tattva_data = pd.read_csv('tattva.csv', encoding='utf-8')
+        """タットワデータの読み込み"""
+        try:
+            self.tattva_data = pd.read_csv('tattva.csv', encoding='utf-8')
+            logging.debug(f"タットワデータを読み込みました: {len(self.tattva_data)}行")
+        except Exception as e:
+            logging.error(f"タットワデータの読み込みに失敗: {str(e)}")
+            self.tattva_data = pd.DataFrame()
 
     def setup_sound_player(self):
         self.audio_output = QAudioOutput()
@@ -253,42 +271,63 @@ class TattvaApp(QMainWindow):
         self.player.play()
 
     def update_card_display(self):
-        current_text = self.card_combo.currentText()
-        if current_text:
-            matching_rows = self.tattva_data[self.tattva_data['組み合わせ'] == current_text]
+        """カード表示を更新"""
+        try:
+            selected_card = self.card_combo.currentText()
+            logging.debug(f"選択されたカード: {selected_card}")
             
-            if not matching_rows.empty:
-                row = matching_rows.iloc[0]
+            if selected_card and selected_card in self.tattva_data['組み合わせ'].values:
+                card_data = self.tattva_data[self.tattva_data['組み合わせ'] == selected_card].iloc[0]
                 
-                # Update image
-                image_path = os.path.join('images', row['画像ファイル名'])
+                # カード画像の表示
+                image_path = os.path.join('images', card_data['画像ファイル名'])
                 if os.path.exists(image_path):
                     pixmap = QPixmap(image_path)
-                    self.card_image.setPixmap(pixmap.scaled(300, 300, Qt.AspectRatioMode.KeepAspectRatio))
+                    if not pixmap.isNull():
+                        # サイズチェック（201x257であることを確認）
+                        if pixmap.width() == 201 and pixmap.height() == 257:
+                            # 表示サイズに合わせてスケーリング（アスペクト比を保持）
+                            self.card_image.setPixmap(pixmap.scaled(300, 300, Qt.AspectRatioMode.KeepAspectRatio))
+                            logging.debug(f"カード画像を読み込みました: {image_path}")
+                else:
+                    logging.warning(f"カード画像が見つかりません: {image_path}")
+                    self.card_image.clear()
                 
-                # Update interpretations
-                pos_text = row['ポジティブ解釈'] if pd.notna(row['ポジティブ解釈']) else "解釈なし"
-                neg_text = row['ネガティブ解釈'] if pd.notna(row['ネガティブ解釈']) else "解釈なし"
+                # 解釈の表示
+                pos_text = card_data['ポジティブ解釈'] if pd.notna(card_data['ポジティブ解釈']) else "解釈なし"
+                neg_text = card_data['ネガティブ解釈'] if pd.notna(card_data['ネガティブ解釈']) else "解釈なし"
                 
                 self.pos_interpret.setText(f"{i18n.get('interpretation.positive')}: {pos_text}")
                 self.neg_interpret.setText(f"{i18n.get('interpretation.negative')}: {neg_text}")
+            else:
+                logging.warning(f"選択されたカード {selected_card} のデータが見つかりません")
+                self.card_image.clear()
+                self.pos_interpret.clear()
+                self.neg_interpret.clear()
+        except Exception as e:
+            logging.error(f"カード表示の更新中にエラーが発生: {str(e)}")
 
     def start_meditation(self):
-        self.start_time_label.setText(f"{i18n.get('timer.start_time')}: --:--:--")
-        self.end_time_label.setText(f"{i18n.get('timer.end_time')}: --:--:--")
-        self.duration_label.setText(f"{i18n.get('timer.duration')}: --{i18n.get('timer.minutes')}")
-        
-        self.remaining_seconds = self.timer_spinbox.value() * 60
-        self.countdown_seconds = 5
-        
-        # Disable start button and enable stop button
-        self.start_button.setEnabled(False)
-        self.stop_button.setEnabled(True)
-        self.timer_spinbox.setEnabled(False)
-        
-        # Start countdown
-        self.update_countdown()
-        self.countdown_timer.start(1000)  # 1秒ごとに更新
+        """瞑想を開始"""
+        try:
+            self.start_time_label.setText(f"{i18n.get('timer.start_time')}: --:--:--")
+            self.end_time_label.setText(f"{i18n.get('timer.end_time')}: --:--:--")
+            self.duration_label.setText(f"{i18n.get('timer.duration')}: --{i18n.get('timer.minutes')}")
+            
+            self.remaining_seconds = self.timer_spinbox.value() * 60
+            self.countdown_seconds = 5
+            
+            # Disable start button and enable stop button
+            self.start_button.setEnabled(False)
+            self.stop_button.setEnabled(True)
+            self.timer_spinbox.setEnabled(False)
+            
+            # Start countdown
+            self.update_countdown()
+            self.countdown_timer.start(1000)  # 1秒ごとに更新
+            logging.debug("瞑想開始")
+        except Exception as e:
+            logging.error(f"瞑想開始時にエラーが発生: {str(e)}")
 
     def update_countdown(self):
         if self.countdown_seconds > 0:
@@ -397,11 +436,38 @@ class TattvaApp(QMainWindow):
         self.update_card_display()
 
     def closeEvent(self, event):
+        """アプリケーション終了時の処理"""
+        # データベースのバックアップを作成
+        backup_database()
         db.close()
         event.accept()
 
+def setup_logging(debug_mode=False):
+    """ロギングの設定"""
+    log_level = logging.DEBUG if debug_mode else logging.ERROR
+    log_format = '%(asctime)s - %(levelname)s - %(message)s' if debug_mode else '%(message)s'
+    
+    logging.basicConfig(
+        level=log_level,
+        format=log_format,
+        handlers=[logging.StreamHandler()]
+    )
+
+def parse_arguments():
+    """コマンドライン引数の解析"""
+    parser = argparse.ArgumentParser(description='TattvaVision - タットワ瞑想支援アプリケーション')
+    parser.add_argument('--debug', action='store_true', help='デバッグモードで起動（詳細なログを表示）')
+    return parser.parse_args()
+
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = TattvaApp()
-    window.show()
-    sys.exit(app.exec())
+    args = parse_arguments()
+    setup_logging(args.debug)
+    
+    try:
+        app = QApplication(sys.argv)
+        window = TattvaApp()
+        window.show()
+        sys.exit(app.exec())
+    except Exception as e:
+        logging.error(f"アプリケーションの起動に失敗しました: {str(e)}")
+        sys.exit(1)

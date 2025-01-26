@@ -9,6 +9,37 @@
     "language": "Language",
     "date_format": "Date Format"
   },
+  "card_selection": {
+    "title": "Card Selection"
+  },
+  "card": {
+    "title": "Card"
+  },
+  "timer": {
+    "title": "Meditation Time",
+    "minutes": "min",
+    "start_time": "Start Time: --:--:--",
+    "end_time": "End Time: --:--:--",
+    "duration": "Duration: -- min"
+  },
+  "control": {
+    "start": "Start",
+    "stop": "Stop"
+  },
+  "interpretation": {
+    "title": "Interpretation",
+    "positive": "Positive Interpretation",
+    "negative": "Negative Interpretation"
+  },
+  "notes": {
+    "title": "Notes",
+    "placeholder": "Write your meditation insights here..."
+  },
+  "record": {
+    "title": "Record",
+    "save": "Save",
+    "list": "History"
+  },
   "backup": {
     "create": "Create Backup",
     "restore": "Restore from Backup",
@@ -52,8 +83,8 @@
     "cancel": "Cancel"
   },
   "delete_confirmation": {
-    "title": "⚠️ Warning: Complete Data Deletion",
-    "warning": "⚠️ You are about to delete all meditation records!",
+    "title": " Warning: Complete Data Deletion",
+    "warning": " You are about to delete all meditation records!",
     "detail": "This action cannot be undone.",
     "export_recommendation": "It is recommended to export your data before proceeding.",
     "confirmation": "Are you sure you want to delete all records?",
@@ -68,6 +99,11 @@
     "card": "Card",
     "notes": "Notes"
   },
+  "dialog": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "ok": "OK"
+  },
   "search_placeholder": "Search records...",
   "refresh_button": "Refresh",
   "export_button": "Export CSV",
@@ -77,12 +113,12 @@
     "filename": "meditation_records"
   },
   "export_header": {
-    "date": "Date/日付",
-    "start_time": "Start Time/開始時刻",
-    "end_time": "End Time/終了時刻",
-    "duration": "Duration(min)/瞑想時間(分)",
-    "card": "Card/カード",
-    "notes": "Notes/記録"
+    "date": "Date/",
+    "start_time": "Start Time/",
+    "end_time": "End Time/",
+    "duration": "Duration(min)/",
+    "card": "Card/",
+    "notes": "Notes/"
   },
   "export_success": {
     "title": "Success",

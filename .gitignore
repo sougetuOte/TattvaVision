@@ -43,6 +43,3 @@ env/
 .env.local
 .env.*.local
 
-# Media files
-*.mp3
-*.wav

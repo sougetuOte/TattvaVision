@@ -9,6 +9,37 @@
     "language": "言語",
     "date_format": "日付形式"
   },
+  "card_selection": {
+    "title": "カードの選択"
+  },
+  "card": {
+    "title": "カード"
+  },
+  "timer": {
+    "title": "瞑想時間",
+    "minutes": "分",
+    "start_time": "開始時刻: --:--:--",
+    "end_time": "終了時刻: --:--:--",
+    "duration": "瞑想時間: --分"
+  },
+  "control": {
+    "start": "開始",
+    "stop": "停止"
+  },
+  "interpretation": {
+    "title": "解釈",
+    "positive": "ポジティブな解釈",
+    "negative": "ネガティブな解釈"
+  },
+  "notes": {
+    "title": "メモ",
+    "placeholder": "瞑想中の気づきをメモしましょう..."
+  },
+  "record": {
+    "title": "記録",
+    "save": "記録",
+    "list": "履歴"
+  },
   "backup": {
     "create": "バックアップを作成",
     "restore": "バックアップから復元",
@@ -41,12 +72,12 @@
   },
   "edit_dialog": {
     "title": "記録の編集",
-    "date": "日時",
+    "date": "日付",
     "start_time": "開始時刻",
     "end_time": "終了時刻",
     "duration": "瞑想時間",
     "card": "選択したカード",
-    "notes": "瞑想記録:",
+    "notes": "瞑想メモ:",
     "save": "保存",
     "delete": "削除",
     "cancel": "キャンセル"
@@ -54,8 +85,8 @@
   "delete_confirmation": {
     "title": "⚠️ 警告: データの完全削除",
     "warning": "⚠️ 全ての瞑想記録を削除しようとしています！",
-    "detail": "この操作は取り消すことができません。",
-    "export_recommendation": "続行する前に、必要なデータをエクスポートすることを推奨します。",
+    "detail": "この操作は取り消せません。",
+    "export_recommendation": "実行前にデータをエクスポートすることをお勧めします。",
     "confirmation": "本当に全ての記録を削除しますか？",
     "delete": "削除",
     "cancel": "キャンセル"
@@ -66,31 +97,12 @@
     "end_time": "終了時刻",
     "duration": "瞑想時間",
     "card": "カード",
-    "notes": "記録"
+    "notes": "メモ"
   },
-  "search_placeholder": "記録を検索...",
-  "refresh_button": "更新",
-  "export_button": "CSVエクスポート",
-  "delete_all_button": "全データ削除",
-  "export_dialog": {
-    "title": "エクスポート先を選択",
-    "filename": "meditation_records"
-  },
-  "export_header": {
-    "date": "日付/Date",
-    "start_time": "開始時刻/Start Time",
-    "end_time": "終了時刻/End Time",
-    "duration": "瞑想時間(分)/Duration(min)",
-    "card": "カード/Card",
-    "notes": "記録/Notes"
-  },
-  "export_success": {
-    "title": "成功",
-    "message": "データを正常にエクスポートしました。"
-  },
-  "delete_success": {
-    "title": "成功",
-    "message": "全ての記録を削除しました。"
+  "dialog": {
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "ok": "OK"
   },
   "sounds": {
     "start": "sounds/start.mp3",

@@ -5,14 +5,25 @@ import shutil
 import pytest
 from pathlib import Path
 from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import Qt
 from database import db, initialize_database
 
 # テスト用のアプリケーションインスタンス
 @pytest.fixture(scope="session")
-def app():
+def app(request):
+    # ヘッドレスモードを確実に設定
+    os.environ["QT_QPA_PLATFORM"] = "minimal"
+    
+    # 既存のアプリケーションインスタンスがあれば使用
     app = QApplication.instance()
     if app is None:
         app = QApplication(sys.argv)
+    
+    # セッション終了時のクリーンアップ
+    def cleanup():
+        app.quit()
+    request.addfinalizer(cleanup)
+    
     return app
 
 # テスト用の一時ディレクトリ
@@ -55,3 +66,25 @@ def test_sound_path():
 @pytest.fixture(scope="function")
 def test_settings_path(temp_dir):
     return os.path.join(temp_dir, "test_settings.json")
+
+# GUIテスト用のメインウィンドウ
+@pytest.fixture
+def main_window(app, test_db_path, test_settings_path, request):
+    """テスト用のメインウィンドウインスタンスを提供する"""
+    from tattva_app import TattvaApp
+    window = TattvaApp()
+    
+    # テスト終了時のクリーンアップ
+    def cleanup():
+        window.close()
+        window.deleteLater()
+    request.addfinalizer(cleanup)
+    
+    return window
+
+# GUIテスト用のQTestライブラリ
+@pytest.fixture
+def qtbot(app):
+    """QTestライブラリのインスタンスを提供する"""
+    from pytestqt.qtbot import QtBot
+    return QtBot(app)

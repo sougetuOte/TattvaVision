@@ -1,5 +1,12 @@
 from datetime import datetime
+import os
+import shutil
 from peewee import *
+from PySide6.QtWidgets import QMessageBox
+
+# データベースのパス設定
+DB_PATH = 'meditation.db'
+BACKUP_PATH = 'meditation.db.bak'
 
 # データベース接続
 db = SqliteDatabase(None)
@@ -59,8 +66,57 @@ class MeditationRecord(BaseModel):
         
         return keywords
 
+def backup_database():
+    """データベースのバックアップを作成"""
+    try:
+        if os.path.exists(DB_PATH):
+            shutil.copy2(DB_PATH, BACKUP_PATH)
+    except Exception as e:
+        print(f"バックアップ作成エラー: {str(e)}")
+
+def restore_from_backup():
+    """バックアップからデータベースを復元"""
+    try:
+        if os.path.exists(BACKUP_PATH):
+            shutil.copy2(BACKUP_PATH, DB_PATH)
+            return True
+    except Exception as e:
+        print(f"バックアップ復元エラー: {str(e)}")
+    return False
+
 def initialize_database():
     """データベースの初期化"""
+    db_exists = os.path.exists(DB_PATH)
+    backup_exists = os.path.exists(BACKUP_PATH)
+
+    if not db_exists:
+        if backup_exists:
+            # バックアップから復元を試みる
+            if restore_from_backup():
+                QMessageBox.information(
+                    None,
+                    "データベース復元",
+                    "データベースファイルが見つかりませんでした。\nバックアップから復元しました。"
+                )
+            else:
+                QMessageBox.warning(
+                    None,
+                    "データベース作成",
+                    "データベースファイルとバックアップが見つかりませんでした。\n新しいデータベースを作成します。"
+                )
+        else:
+            QMessageBox.warning(
+                None,
+                "データベース作成",
+                "データベースファイルが見つかりませんでした。\n新しいデータベースを作成します。"
+            )
+
+    # データベースの接続と初期化
+    db.init(DB_PATH)
     db.connect()
     db.create_tables([MeditationRecord], safe=True)
     db.close()
+
+    # 正常に初期化できた場合はバックアップを作成
+    if not backup_exists:
+        backup_database()
