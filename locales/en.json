@@ -20,7 +20,8 @@
     "minutes": "min",
     "start_time": "Start Time: --:--:--",
     "end_time": "End Time: --:--:--",
-    "duration": "Duration: -- min"
+    "duration": "Duration: -- min",
+    "countdown": "Starting in"
   },
   "control": {
     "start": "Start",

@@ -330,8 +330,9 @@ class TattvaApp(QMainWindow):
             logging.error(f"瞑想開始時にエラーが発生: {str(e)}")
 
     def update_countdown(self):
+        """カウントダウンの更新"""
         if self.countdown_seconds > 0:
-            self.time_display.setText(f"{i18n.get('timer.countdown')}: {self.countdown_seconds}")
+            self.time_display.setText(f"{i18n.get('timer.countdown')} {self.countdown_seconds}...")
             self.countdown_seconds -= 1
         else:
             self.countdown_timer.stop()
