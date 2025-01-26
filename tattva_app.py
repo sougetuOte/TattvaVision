@@ -4,13 +4,16 @@ import pandas as pd
 from datetime import datetime, timedelta
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                             QHBoxLayout, QPushButton, QLabel, QTextEdit, QComboBox,
-                            QSpinBox, QMessageBox, QFrame, QSizePolicy)
+                            QSpinBox, QMessageBox, QFrame, QSizePolicy, QDialog)
 from PySide6.QtGui import QPixmap, QFont, QPalette, QColor, QIcon
 from PySide6.QtCore import Qt, QTimer, QSize
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PySide6.QtCore import QUrl
 from database import initialize_database, MeditationRecord, db
 from record_window import RecordWindow
+from settings import settings
+from i18n import i18n
+from settings_window import SettingsWindow
 
 class StyleSheet:
     MAIN_STYLE = """
@@ -67,7 +70,7 @@ class StyleSheet:
 class TattvaApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("タットワ瞑想記録")
+        self.setWindowTitle(i18n.get('app.title'))
         self.setGeometry(100, 100, 1200, 800)
         self.setStyleSheet(StyleSheet.MAIN_STYLE)
         
@@ -121,7 +124,7 @@ class TattvaApp(QMainWindow):
         layout.setContentsMargins(10, 10, 10, 10)
         
         # Card selection
-        layout.addWidget(QLabel("カード選択"))
+        layout.addWidget(QLabel(i18n.get('card_selection.title')))
         self.card_combo = QComboBox()
         self.card_combo.addItems([row['組み合わせ'] 
                                 for _, row in self.tattva_data.iterrows() if pd.notna(row['組み合わせ'])])
@@ -129,11 +132,11 @@ class TattvaApp(QMainWindow):
         layout.addWidget(self.card_combo)
         
         # Timer selection
-        layout.addWidget(QLabel("瞑想時間"))
+        layout.addWidget(QLabel(i18n.get('timer.title')))
         self.timer_spinbox = QSpinBox()
         self.timer_spinbox.setRange(1, 60)
         self.timer_spinbox.setValue(10)
-        self.timer_spinbox.setSuffix("分")
+        self.timer_spinbox.setSuffix(i18n.get('timer.minutes'))
         layout.addWidget(self.timer_spinbox)
         
         # Time display
@@ -146,9 +149,9 @@ class TattvaApp(QMainWindow):
         self.time_display.setAlignment(Qt.AlignCenter)
         time_layout.addWidget(self.time_display)
         
-        self.start_time_label = QLabel("開始時刻: --:--:--")
-        self.end_time_label = QLabel("終了時刻: --:--:--")
-        self.duration_label = QLabel("瞑想時間: --分")
+        self.start_time_label = QLabel(f"{i18n.get('timer.start_time')}: --:--:--")
+        self.end_time_label = QLabel(f"{i18n.get('timer.end_time')}: --:--:--")
+        self.duration_label = QLabel(f"{i18n.get('timer.duration')}: --{i18n.get('timer.minutes')}")
         
         for label in [self.start_time_label, self.end_time_label, self.duration_label]:
             label.setStyleSheet(StyleSheet.TIME_INFO_STYLE)
@@ -158,9 +161,9 @@ class TattvaApp(QMainWindow):
         
         # Control buttons
         button_layout = QHBoxLayout()
-        self.start_button = QPushButton("開始")
+        self.start_button = QPushButton(i18n.get('control.start'))
         self.start_button.clicked.connect(self.start_meditation)
-        self.stop_button = QPushButton("停止")
+        self.stop_button = QPushButton(i18n.get('control.stop'))
         self.stop_button.clicked.connect(self.stop_meditation)
         self.stop_button.setEnabled(False)
         self.stop_button.setStyleSheet("background-color: #CCCCCC;")
@@ -179,7 +182,7 @@ class TattvaApp(QMainWindow):
         layout.setContentsMargins(10, 10, 10, 10)
         
         # Title
-        layout.addWidget(QLabel("タットワカード"))
+        layout.addWidget(QLabel(i18n.get('card.title')))
         
         # Card image
         self.card_image = QLabel()
@@ -188,10 +191,10 @@ class TattvaApp(QMainWindow):
         layout.addWidget(self.card_image, alignment=Qt.AlignCenter)
         
         # Interpretation
-        layout.addWidget(QLabel("解釈"))
-        self.pos_interpret = QLabel("ポジティブな解釈:")
+        layout.addWidget(QLabel(i18n.get('interpretation.title')))
+        self.pos_interpret = QLabel(f"{i18n.get('interpretation.positive')}:")
         self.pos_interpret.setWordWrap(True)
-        self.neg_interpret = QLabel("ネガティブな解釈:")
+        self.neg_interpret = QLabel(f"{i18n.get('interpretation.negative')}:")
         self.neg_interpret.setWordWrap(True)
         
         layout.addWidget(self.pos_interpret)
@@ -207,20 +210,29 @@ class TattvaApp(QMainWindow):
         layout.setContentsMargins(10, 10, 10, 10)
         
         # Notes
-        layout.addWidget(QLabel("瞑想記録"))
+        layout.addWidget(QLabel(i18n.get('notes.title')))
         self.notes = QTextEdit()
-        self.notes.setPlaceholderText("瞑想中の気づきや感想をメモしましょう...")
+        self.notes.setPlaceholderText(i18n.get('notes.placeholder'))
         layout.addWidget(self.notes)
         
         # Record management
-        layout.addWidget(QLabel("記録管理"))
-        save_button = QPushButton("記録を保存")
-        save_button.clicked.connect(self.save_meditation)
-        layout.addWidget(save_button)
+        layout.addWidget(QLabel(i18n.get('record.title')))
         
-        record_button = QPushButton("記録一覧")
+        button_layout = QHBoxLayout()
+        
+        save_button = QPushButton(i18n.get('record.save'))
+        save_button.clicked.connect(self.save_meditation)
+        button_layout.addWidget(save_button)
+        
+        record_button = QPushButton(i18n.get('record.list'))
         record_button.clicked.connect(self.show_record_list)
-        layout.addWidget(record_button)
+        button_layout.addWidget(record_button)
+        
+        settings_button = QPushButton("⚙️ " + i18n.get('app.settings'))
+        settings_button.clicked.connect(self.show_settings)
+        button_layout.addWidget(settings_button)
+        
+        layout.addLayout(button_layout)
         
         return panel
 
@@ -258,14 +270,13 @@ class TattvaApp(QMainWindow):
                 pos_text = row['ポジティブ解釈'] if pd.notna(row['ポジティブ解釈']) else "解釈なし"
                 neg_text = row['ネガティブ解釈'] if pd.notna(row['ネガティブ解釈']) else "解釈なし"
                 
-                self.pos_interpret.setText(f"ポジティブな解釈:\n{pos_text}")
-                self.neg_interpret.setText(f"ネガティブな解釈:\n{neg_text}")
+                self.pos_interpret.setText(f"{i18n.get('interpretation.positive')}: {pos_text}")
+                self.neg_interpret.setText(f"{i18n.get('interpretation.negative')}: {neg_text}")
 
     def start_meditation(self):
-        # meditation_start_timeはカウントダウン終了後に設定するため、ここでは設定しない
-        self.start_time_label.setText("開始時刻: --:--:--")
-        self.end_time_label.setText("終了時刻: --:--:--")
-        self.duration_label.setText("瞑想時間: --分")
+        self.start_time_label.setText(f"{i18n.get('timer.start_time')}: --:--:--")
+        self.end_time_label.setText(f"{i18n.get('timer.end_time')}: --:--:--")
+        self.duration_label.setText(f"{i18n.get('timer.duration')}: --{i18n.get('timer.minutes')}")
         
         self.remaining_seconds = self.timer_spinbox.value() * 60
         self.countdown_seconds = 5
@@ -281,15 +292,14 @@ class TattvaApp(QMainWindow):
 
     def update_countdown(self):
         if self.countdown_seconds > 0:
-            self.time_display.setText(f"開始まで: {self.countdown_seconds}")
+            self.time_display.setText(f"{i18n.get('timer.countdown')}: {self.countdown_seconds}")
             self.countdown_seconds -= 1
         else:
             self.countdown_timer.stop()
             self.play_sound()  # 開始音
-            # 実際の瞑想開始時に開始時刻を設定
             self.meditation_start_time = datetime.now()
-            self.start_time_label.setText(f"開始時刻: {self.meditation_start_time.strftime('%H:%M:%S')}")
-            self.meditation_timer.start(1000)  # 1秒ごとに更新
+            self.start_time_label.setText(f"{i18n.get('timer.start_time')}: {self.meditation_start_time.strftime('%H:%M:%S')}")
+            self.meditation_timer.start(1000)
             self.update_meditation_time()
 
     def update_meditation_time(self):
@@ -312,9 +322,9 @@ class TattvaApp(QMainWindow):
             self.meditation_end_time = datetime.now()
         
         # Update time labels
-        self.end_time_label.setText(f"終了時刻: {self.meditation_end_time.strftime('%H:%M:%S')}")
+        self.end_time_label.setText(f"{i18n.get('timer.end_time')}: {self.meditation_end_time.strftime('%H:%M:%S')}")
         duration = (self.meditation_end_time - self.meditation_start_time).total_seconds() / 60
-        self.duration_label.setText(f"瞑想時間: {duration:.1f}分")
+        self.duration_label.setText(f"{i18n.get('timer.duration')}: {duration:.1f}{i18n.get('timer.minutes')}")
         
         # Reset UI
         self.start_button.setEnabled(True)
@@ -324,7 +334,11 @@ class TattvaApp(QMainWindow):
 
     def save_meditation(self):
         if not self.meditation_start_time or not self.meditation_end_time:
-            QMessageBox.warning(self, "エラー", "瞑想を実施してから保存してください。")
+            QMessageBox.warning(
+                self,
+                i18n.get('error.title'),
+                i18n.get('error.no_meditation')
+            )
             return
         
         try:
@@ -344,18 +358,43 @@ class TattvaApp(QMainWindow):
             self.notes.clear()
             self.meditation_start_time = None
             self.meditation_end_time = None
-            self.start_time_label.setText("開始時刻: --:--:--")
-            self.end_time_label.setText("終了時刻: --:--:--")
-            self.duration_label.setText("瞑想時間: --分")
+            self.start_time_label.setText(f"{i18n.get('timer.start_time')}: --:--:--")
+            self.end_time_label.setText(f"{i18n.get('timer.end_time')}: --:--:--")
+            self.duration_label.setText(f"{i18n.get('timer.duration')}: --{i18n.get('timer.minutes')}")
             
-            QMessageBox.information(self, "成功", "記録を保存しました。")
+            QMessageBox.information(
+                self,
+                i18n.get('success.title'),
+                i18n.get('success.record_saved')
+            )
             
         except Exception as e:
-            QMessageBox.warning(self, "エラー", f"保存に失敗しました: {str(e)}")
+            QMessageBox.warning(
+                self,
+                i18n.get('error.title'),
+                f"{i18n.get('error.save_failed')}: {str(e)}"
+            )
 
     def show_record_list(self):
         self.record_window = RecordWindow()
         self.record_window.show()
+
+    def show_settings(self):
+        dialog = SettingsWindow(self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.reload_ui_texts()
+
+    def reload_ui_texts(self):
+        """UIのテキストを現在の言語設定で更新"""
+        self.setWindowTitle(i18n.get('app.title'))
+        self.timer_spinbox.setSuffix(i18n.get('timer.minutes'))
+        self.start_time_label.setText(f"{i18n.get('timer.start_time')}: --:--:--")
+        self.end_time_label.setText(f"{i18n.get('timer.end_time')}: --:--:--")
+        self.duration_label.setText(f"{i18n.get('timer.duration')}: --{i18n.get('timer.minutes')}")
+        self.start_button.setText(i18n.get('control.start'))
+        self.stop_button.setText(i18n.get('control.stop'))
+        self.notes.setPlaceholderText(i18n.get('notes.placeholder'))
+        self.update_card_display()
 
     def closeEvent(self, event):
         db.close()

@@ -1,0 +1,99 @@
+{
+  "app": {
+    "title": "タットワヴィジョン - 瞑想記録",
+    "settings": "設定",
+    "backup": "バックアップ",
+    "restore": "リストア",
+    "export": "エクスポート",
+    "import": "インポート",
+    "language": "言語",
+    "date_format": "日付形式"
+  },
+  "backup": {
+    "create": "バックアップを作成",
+    "restore": "バックアップから復元",
+    "select_file": "ファイルを選択",
+    "select_dir": "保存先を選択",
+    "success": "バックアップが正常に作成されました",
+    "error": "バックアップ作成中にエラーが発生しました",
+    "restore_success": "バックアップからの復元が完了しました",
+    "restore_error": "バックアップからの復元中にエラーが発生しました"
+  },
+  "csv": {
+    "export": "CSVエクスポート",
+    "import": "CSVインポート",
+    "export_success": "CSVエクスポートが完了しました",
+    "export_error": "CSVエクスポート中にエラーが発生しました",
+    "import_success": "CSVインポートが完了しました",
+    "import_error": "CSVインポート中にエラーが発生しました",
+    "select_format": "日付形式を選択"
+  },
+  "error": {
+    "title": "エラー",
+    "file_not_found": "ファイルが見つかりません",
+    "permission_denied": "アクセス権限がありません",
+    "invalid_format": "無効なファイル形式です",
+    "database_error": "データベースエラーが発生しました",
+    "unknown_error": "不明なエラーが発生しました",
+    "save_failed": "保存に失敗しました:",
+    "delete_failed": "削除に失敗しました:",
+    "export_failed": "エクスポートに失敗しました:"
+  },
+  "edit_dialog": {
+    "title": "記録の編集",
+    "date": "日時",
+    "start_time": "開始時刻",
+    "end_time": "終了時刻",
+    "duration": "瞑想時間",
+    "card": "選択したカード",
+    "notes": "瞑想記録:",
+    "save": "保存",
+    "delete": "削除",
+    "cancel": "キャンセル"
+  },
+  "delete_confirmation": {
+    "title": "⚠️ 警告: データの完全削除",
+    "warning": "⚠️ 全ての瞑想記録を削除しようとしています！",
+    "detail": "この操作は取り消すことができません。",
+    "export_recommendation": "続行する前に、必要なデータをエクスポートすることを推奨します。",
+    "confirmation": "本当に全ての記録を削除しますか？",
+    "delete": "削除",
+    "cancel": "キャンセル"
+  },
+  "table_header": {
+    "date": "日付",
+    "start_time": "開始時刻",
+    "end_time": "終了時刻",
+    "duration": "瞑想時間",
+    "card": "カード",
+    "notes": "記録"
+  },
+  "search_placeholder": "記録を検索...",
+  "refresh_button": "更新",
+  "export_button": "CSVエクスポート",
+  "delete_all_button": "全データ削除",
+  "export_dialog": {
+    "title": "エクスポート先を選択",
+    "filename": "meditation_records"
+  },
+  "export_header": {
+    "date": "日付/Date",
+    "start_time": "開始時刻/Start Time",
+    "end_time": "終了時刻/End Time",
+    "duration": "瞑想時間(分)/Duration(min)",
+    "card": "カード/Card",
+    "notes": "記録/Notes"
+  },
+  "export_success": {
+    "title": "成功",
+    "message": "データを正常にエクスポートしました。"
+  },
+  "delete_success": {
+    "title": "成功",
+    "message": "全ての記録を削除しました。"
+  },
+  "sounds": {
+    "start": "sounds/start.mp3",
+    "end": "sounds/end.mp3"
+  }
+}

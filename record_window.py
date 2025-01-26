@@ -5,6 +5,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from database import MeditationRecord, db
 from datetime import datetime
+from settings import settings
+from i18n import i18n
+from settings_window import SettingsWindow
 import csv
 import codecs
 
@@ -12,7 +15,7 @@ class EditDialog(QDialog):
     def __init__(self, record, parent=None):
         super().__init__(parent)
         self.record = record
-        self.setWindowTitle("記録の編集")
+        self.setWindowTitle(i18n.get('edit_dialog.title'))
         self.setModal(True)
         self.setup_ui()
 
@@ -21,28 +24,28 @@ class EditDialog(QDialog):
         
         # 情報表示
         info_text = (
-            f"日時: {self.record.date.strftime('%Y-%m-%d %H:%M:%S')}\n"
-            f"開始時刻: {self.record.start_time.strftime('%H:%M:%S')}\n"
-            f"終了時刻: {self.record.end_time.strftime('%H:%M:%S')}\n"
-            f"瞑想時間: {self.record.duration}分\n"
-            f"選択したカード: {self.record.card_name}\n"
+            f"{i18n.get('edit_dialog.date')}: {self.record.date.strftime('%Y-%m-%d %H:%M:%S')}\n"
+            f"{i18n.get('edit_dialog.start_time')}: {self.record.start_time.strftime('%H:%M:%S')}\n"
+            f"{i18n.get('edit_dialog.end_time')}: {self.record.end_time.strftime('%H:%M:%S')}\n"
+            f"{i18n.get('edit_dialog.duration')}: {self.record.duration}分\n"
+            f"{i18n.get('edit_dialog.card')}: {self.record.card_name}\n"
         )
         info_label = QLabel(info_text)
         layout.addWidget(info_label)
         
         # メモ編集エリア
-        layout.addWidget(QLabel("瞑想記録:"))
+        layout.addWidget(QLabel(i18n.get('edit_dialog.notes')))
         self.notes_edit = QTextEdit()
         self.notes_edit.setText(self.record.notes or "")
         layout.addWidget(self.notes_edit)
         
         # ボタン
         button_layout = QHBoxLayout()
-        save_button = QPushButton("保存")
+        save_button = QPushButton(i18n.get('edit_dialog.save'))
         save_button.clicked.connect(self.save_record)
-        delete_button = QPushButton("削除")
+        delete_button = QPushButton(i18n.get('edit_dialog.delete'))
         delete_button.clicked.connect(self.delete_record)
-        cancel_button = QPushButton("キャンセル")
+        cancel_button = QPushButton(i18n.get('edit_dialog.cancel'))
         cancel_button.clicked.connect(self.reject)
         
         button_layout.addWidget(save_button)
@@ -57,11 +60,11 @@ class EditDialog(QDialog):
                 self.record.save()
             self.accept()
         except Exception as e:
-            QMessageBox.warning(self, "エラー", f"保存に失敗しました: {str(e)}")
+            QMessageBox.warning(self, i18n.get('error.title'), f"{i18n.get('error.save_failed')} {str(e)}")
 
     def delete_record(self):
         reply = QMessageBox.question(
-            self, "確認", "この記録を削除してもよろしいですか？",
+            self, i18n.get('delete_confirmation.title'), i18n.get('delete_confirmation.message'),
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         
@@ -71,38 +74,38 @@ class EditDialog(QDialog):
                     self.record.delete_instance()
                 self.accept()
             except Exception as e:
-                QMessageBox.warning(self, "エラー", f"削除に失敗しました: {str(e)}")
+                QMessageBox.warning(self, i18n.get('error.title'), f"{i18n.get('error.delete_failed')} {str(e)}")
 
 class DeleteConfirmationDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("⚠️ 警告: データの完全削除")
+        self.setWindowTitle(i18n.get('delete_confirmation.title'))
         self.setup_ui()
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
         
         # 警告メッセージ
-        warning_label = QLabel("⚠️ 全ての瞑想記録を削除しようとしています！")
+        warning_label = QLabel(i18n.get('delete_confirmation.warning'))
         warning_label.setStyleSheet("QLabel { color: red; font-weight: bold; font-size: 14px; }")
         layout.addWidget(warning_label)
         
         # 詳細説明
         detail_label = QLabel(
-            "この操作は取り消すことができません。\n"
-            "続行する前に、必要なデータをエクスポートすることを推奨します。\n\n"
-            "本当に全ての記録を削除しますか？"
+            f"{i18n.get('delete_confirmation.detail')}\n"
+            f"{i18n.get('delete_confirmation.export_recommendation')}\n\n"
+            f"{i18n.get('delete_confirmation.confirmation')}"
         )
         detail_label.setWordWrap(True)
         layout.addWidget(detail_label)
         
         # ボタン
         button_layout = QHBoxLayout()
-        delete_button = QPushButton("削除")
+        delete_button = QPushButton(i18n.get('delete_confirmation.delete'))
         delete_button.setStyleSheet("QPushButton { background-color: red; color: white; font-weight: bold; }")
         delete_button.clicked.connect(self.accept)
         
-        cancel_button = QPushButton("キャンセル")
+        cancel_button = QPushButton(i18n.get('delete_confirmation.cancel'))
         cancel_button.clicked.connect(self.reject)
         
         button_layout.addWidget(cancel_button)
@@ -112,7 +115,7 @@ class DeleteConfirmationDialog(QDialog):
 class RecordWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("瞑想記録一覧")
+        self.setWindowTitle(i18n.get('app.title'))
         self.setGeometry(150, 150, 800, 600)
         self.setup_ui()
         self.load_records()
@@ -125,7 +128,7 @@ class RecordWindow(QMainWindow):
         # 検索バー
         search_layout = QHBoxLayout()
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("記録を検索...")
+        self.search_input.setPlaceholderText(i18n.get('search_placeholder'))
         self.search_input.textChanged.connect(self.load_records)
         search_layout.addWidget(self.search_input)
         layout.addLayout(search_layout)
@@ -134,7 +137,8 @@ class RecordWindow(QMainWindow):
         self.table = QTableWidget()
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels([
-            "日付", "開始時刻", "終了時刻", "瞑想時間", "カード", "記録"
+            i18n.get('table_header.date'), i18n.get('table_header.start_time'), i18n.get('table_header.end_time'),
+            i18n.get('table_header.duration'), i18n.get('table_header.card'), i18n.get('table_header.notes')
         ])
         self.table.itemDoubleClicked.connect(self.edit_record)
         layout.addWidget(self.table)
@@ -147,29 +151,39 @@ class RecordWindow(QMainWindow):
         button_layout = QHBoxLayout()
         
         # 更新ボタン
-        refresh_button = QPushButton("更新")
+        refresh_button = QPushButton(i18n.get('refresh_button'))
         refresh_button.clicked.connect(self.load_records)
         button_layout.addWidget(refresh_button)
         
+        # 設定ボタン
+        settings_button = QPushButton("⚙️ " + i18n.get('app.settings'))
+        settings_button.clicked.connect(self.show_settings)
+        button_layout.addWidget(settings_button)
+        
         # エクスポートボタン
-        export_button = QPushButton("📊 CSVエクスポート")
+        export_button = QPushButton("📊 " + i18n.get('export_button'))
         export_button.clicked.connect(self.export_records)
         button_layout.addWidget(export_button)
         
         # 削除ボタン
-        delete_all_button = QPushButton("🗑️ 全データ削除")
+        delete_all_button = QPushButton("🗑️ " + i18n.get('delete_all_button'))
         delete_all_button.setStyleSheet("QPushButton { color: red; }")
         delete_all_button.clicked.connect(self.delete_all_records)
         button_layout.addWidget(delete_all_button)
         
         layout.addLayout(button_layout)
 
+    def show_settings(self):
+        dialog = SettingsWindow(self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.load_records()
+
     def export_records(self):
         try:
             file_name, _ = QFileDialog.getSaveFileName(
                 self,
-                "エクスポート先を選択",
-                f"meditation_records_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                i18n.get('export_dialog.title'),
+                f"{i18n.get('export_dialog.filename')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                 "CSV Files (*.csv)"
             )
             
@@ -178,8 +192,8 @@ class RecordWindow(QMainWindow):
                     writer = csv.writer(f)
                     # ヘッダー（日本語と英語）
                     writer.writerow([
-                        '日付/Date', '開始時刻/Start Time', '終了時刻/End Time',
-                        '瞑想時間(分)/Duration(min)', 'カード/Card', '記録/Notes'
+                        i18n.get('export_header.date'), i18n.get('export_header.start_time'), i18n.get('export_header.end_time'),
+                        i18n.get('export_header.duration'), i18n.get('export_header.card'), i18n.get('export_header.notes')
                     ])
                     
                     records = MeditationRecord.select().order_by(MeditationRecord.date.desc())
@@ -193,9 +207,9 @@ class RecordWindow(QMainWindow):
                             record.notes or ''
                         ])
                 
-                QMessageBox.information(self, "成功", "データを正常にエクスポートしました。")
+                QMessageBox.information(self, i18n.get('export_success.title'), i18n.get('export_success.message'))
         except Exception as e:
-            QMessageBox.warning(self, "エラー", f"エクスポート中にエラーが発生しました: {str(e)}")
+            QMessageBox.warning(self, i18n.get('error.title'), f"{i18n.get('error.export_failed')} {str(e)}")
 
     def delete_all_records(self):
         dialog = DeleteConfirmationDialog(self)
@@ -204,9 +218,9 @@ class RecordWindow(QMainWindow):
                 with db.atomic():
                     MeditationRecord.delete().execute()
                 self.load_records()
-                QMessageBox.information(self, "成功", "全ての記録を削除しました。")
+                QMessageBox.information(self, i18n.get('delete_success.title'), i18n.get('delete_success.message'))
             except Exception as e:
-                QMessageBox.warning(self, "エラー", f"削除中にエラーが発生しました: {str(e)}")
+                QMessageBox.warning(self, i18n.get('error.title'), f"{i18n.get('error.delete_failed')} {str(e)}")
 
     def load_records(self):
         search_text = self.search_input.text().strip()

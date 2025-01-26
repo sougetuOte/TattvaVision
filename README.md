@@ -56,6 +56,16 @@ python tattva_app.py
 - Pillow
 - pydub
 
+## クレジット
+
+### 音声ファイル
+- 瞑想開始音: ["Copper Bell Ding"](https://pixabay.com/sound-effects/copper-bell-ding-25-204990/)
+  - 提供: Pixabay Sound Library
+  - ライセンス: Pixabay License（商用利用可、クレジット表記不要）
+- 瞑想終了音: ["Singing Bowl Hit"](https://pixabay.com/sound-effects/singing-bowl-hit-3-33366/)
+  - 提供: Pixabay Sound Library
+  - ライセンス: Pixabay License（商用利用可、クレジット表記不要）
+
 ## ライセンス
 
 [MIT License](LICENSE)

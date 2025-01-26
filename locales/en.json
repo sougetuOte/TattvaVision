@@ -1,0 +1,99 @@
+{
+  "app": {
+    "title": "TattvaVision - Meditation Records",
+    "settings": "Settings",
+    "backup": "Backup",
+    "restore": "Restore",
+    "export": "Export",
+    "import": "Import",
+    "language": "Language",
+    "date_format": "Date Format"
+  },
+  "backup": {
+    "create": "Create Backup",
+    "restore": "Restore from Backup",
+    "select_file": "Select File",
+    "select_dir": "Select Directory",
+    "success": "Backup created successfully",
+    "error": "Error occurred while creating backup",
+    "restore_success": "Restore completed successfully",
+    "restore_error": "Error occurred while restoring from backup"
+  },
+  "csv": {
+    "export": "Export CSV",
+    "import": "Import CSV",
+    "export_success": "CSV export completed",
+    "export_error": "Error occurred during CSV export",
+    "import_success": "CSV import completed",
+    "import_error": "Error occurred during CSV import",
+    "select_format": "Select Date Format"
+  },
+  "error": {
+    "title": "Error",
+    "file_not_found": "File not found",
+    "permission_denied": "Permission denied",
+    "invalid_format": "Invalid file format",
+    "database_error": "Database error occurred",
+    "unknown_error": "Unknown error occurred",
+    "save_failed": "Failed to save:",
+    "delete_failed": "Failed to delete:",
+    "export_failed": "Failed to export:"
+  },
+  "edit_dialog": {
+    "title": "Edit Record",
+    "date": "Date",
+    "start_time": "Start Time",
+    "end_time": "End Time",
+    "duration": "Duration",
+    "card": "Selected Card",
+    "notes": "Meditation Notes:",
+    "save": "Save",
+    "delete": "Delete",
+    "cancel": "Cancel"
+  },
+  "delete_confirmation": {
+    "title": "⚠️ Warning: Complete Data Deletion",
+    "warning": "⚠️ You are about to delete all meditation records!",
+    "detail": "This action cannot be undone.",
+    "export_recommendation": "It is recommended to export your data before proceeding.",
+    "confirmation": "Are you sure you want to delete all records?",
+    "delete": "Delete",
+    "cancel": "Cancel"
+  },
+  "table_header": {
+    "date": "Date",
+    "start_time": "Start Time",
+    "end_time": "End Time",
+    "duration": "Duration",
+    "card": "Card",
+    "notes": "Notes"
+  },
+  "search_placeholder": "Search records...",
+  "refresh_button": "Refresh",
+  "export_button": "Export CSV",
+  "delete_all_button": "Delete All Data",
+  "export_dialog": {
+    "title": "Select Export Location",
+    "filename": "meditation_records"
+  },
+  "export_header": {
+    "date": "Date/日付",
+    "start_time": "Start Time/開始時刻",
+    "end_time": "End Time/終了時刻",
+    "duration": "Duration(min)/瞑想時間(分)",
+    "card": "Card/カード",
+    "notes": "Notes/記録"
+  },
+  "export_success": {
+    "title": "Success",
+    "message": "Data exported successfully."
+  },
+  "delete_success": {
+    "title": "Success",
+    "message": "All records have been deleted."
+  },
+  "sounds": {
+    "start": "sounds/start.mp3",
+    "end": "sounds/end.mp3"
+  }
+}
